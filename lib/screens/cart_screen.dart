@@ -4,6 +4,7 @@ import "package:provider/provider.dart";
 import "../providers/cart.dart" show Cart;
 
 import '../widgets/cart_item.dart';
+import "../providers/order.dart";
 
 class CartScreen extends StatelessWidget {
   static const routeName = '/cart';
@@ -30,7 +31,7 @@ class CartScreen extends StatelessWidget {
                   Spacer(),
                   Chip(
                     label: Text(
-                      '\$ ${cart.totalAmount}',
+                      '\$ ${cart.totalAmount.toStringAsFixed(2)}',
                       style: TextStyle(
                           color:
                               Theme.of(context).primaryTextTheme.title.color),
@@ -39,7 +40,11 @@ class CartScreen extends StatelessWidget {
                   ),
                   FlatButton(
                     child: Text("Order Now"),
-                    onPressed: () {},
+                    onPressed: () {
+                      Provider.of<Order>(context, listen: false).addOrder(
+                          cart.cartItems.values.toList(), cart.totalAmount);
+                      cart.clearCart();
+                    },
                     textColor: Theme.of(context).primaryColor,
                   )
                 ],
@@ -53,6 +58,7 @@ class CartScreen extends StatelessWidget {
             child: ListView.builder(
               itemBuilder: (ctx, index) => CartItem(
                   cart.cartItems.values.toList()[index].id,
+                  cart.cartItems.keys.toList()[index],
                   cart.cartItems.values.toList()[index].price,
                   cart.cartItems.values.toList()[index].quantity,
                   cart.cartItems.values.toList()[index].title),
