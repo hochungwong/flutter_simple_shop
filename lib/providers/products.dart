@@ -52,16 +52,6 @@ class Products with ChangeNotifier {
     return _items.firstWhere((product) => product.id == id);
   }
 
-//  void showFavOnly() {
-//    _showFavOnly = true;
-//    notifyListeners();
-//  }
-//
-//  void showAll() {
-//    _showFavOnly = false;
-//    notifyListeners();
-//  }
-
   void addProduct() {
     //_items.add(value);
     notifyListeners();
