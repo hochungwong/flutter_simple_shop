@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 import "dart:convert";
 
+import "../models/http_exception.dart";
+
 import "package:http/http.dart" as http;
 
 class Product with ChangeNotifier {
@@ -30,13 +32,13 @@ class Product with ChangeNotifier {
     final oldFavStatus = isFavorite;
     isFavorite = !isFavorite;
     notifyListeners();
-    final url = "https://simple-shop-d6592.firebaseio.com/products/$id";
+    final url = "https://simple-shop-d6592.firebaseio.com/products/$id.json";
     final response =
         await http.patch(url, body: json.encode({"isFavorite": isFavorite}));
     if (response.statusCode >= 400) {
       //revert
       _setFavValue(oldFavStatus);
-      throw Exception("Could not add to favorite");
+      throw HttpException("Could not add to favorite");
     }
   }
 }
