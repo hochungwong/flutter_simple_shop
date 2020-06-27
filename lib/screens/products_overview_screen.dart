@@ -22,6 +22,7 @@ class ProductsOverviewScreen extends StatefulWidget {
 class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
   var _showOnlyFavorites = false;
   var _isInit = true;
+  var _isLoading = false;
 
   @override
   void initState() {
@@ -33,11 +34,39 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
 
   @override
   void didChangeDependencies() {
-    if (_isInit) {
-      Provider.of<Products>(context).fetchAndSetProducts();
-    }
-    _isInit = false;
+    _fetchAndSetProducts();
     super.didChangeDependencies();
+  }
+
+  Future<void> _fetchAndSetProducts() async {
+    if (_isInit) {
+      setState(() {
+        _isLoading = true;
+      });
+      try {
+        await Provider.of<Products>(context, listen: false)
+            .fetchAndSetProducts();
+      } catch (error) {
+        await showDialog(
+            context: context,
+            builder: (ctx) => AlertDialog(
+                  title: Text("An error occured"),
+                  content: Text("Something went wrong."),
+                  actions: <Widget>[
+                    FlatButton(
+                      child: Text("Okay"),
+                      onPressed: () {
+                        Navigator.of(ctx).pop();
+                      },
+                    )
+                  ],
+                ));
+      } finally {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
   }
 
   @override
@@ -62,7 +91,7 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
               icon: Icon(Icons.more_vert),
               itemBuilder: (_) => [
                     PopupMenuItem(
-                      child: Text("Only Favoriites"),
+                      child: Text("Only Favorites"),
                       value: FilterOptions.Favorites,
                     ),
                     PopupMenuItem(
@@ -85,7 +114,13 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
         ],
       ),
       drawer: AppDrawer(),
-      body: ProductsGrid(_showOnlyFavorites),
+      body: _isLoading
+          ? Center(
+              child: CircularProgressIndicator(),
+            )
+          : RefreshIndicator(
+              onRefresh: _fetchAndSetProducts,
+              child: ProductsGrid(_showOnlyFavorites)),
     );
   }
 }

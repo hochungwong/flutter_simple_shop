@@ -12,7 +12,6 @@ class ProductItem extends StatelessWidget {
     final product = Provider.of<Product>(context, listen: false);
     final cart = Provider.of<Cart>(context,
         listen: false); //only want to dispatch action, not to re-render
-    print("product rebuild");
     return ClipRRect(
       borderRadius: BorderRadius.circular(10),
       child: GridTile(

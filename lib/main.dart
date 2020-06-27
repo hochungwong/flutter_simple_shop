@@ -21,13 +21,18 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    final Products products = Products();
+    final Cart cart = Cart();
+    final Order orders = Order();
     return MultiProvider(
         providers: [
           //provide one or more stores
           ChangeNotifierProvider.value(value: Auth()),
-          ChangeNotifierProvider(create: (ctx) => Products()),
-          ChangeNotifierProvider(create: (ctx) => Cart()),
-          ChangeNotifierProvider(create: (ctx) => Order())
+          ChangeNotifierProvider.value(
+            value: products,
+          ),
+          ChangeNotifierProvider.value(value: cart),
+          ChangeNotifierProvider.value(value: orders)
         ],
         //child in Consumer builder is the set of static widgets that we don't want to rebuild even if the data
         child: Consumer<Auth>(

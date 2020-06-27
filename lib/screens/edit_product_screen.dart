@@ -96,12 +96,25 @@ class _EditProductScreenState extends State<EditProductScreen> {
     });
     if (_editedProduct.id != null) {
       //id only exists when loaded an existing product
-      Provider.of<Products>(context, listen: false)
-          .updateProduct(_editedProduct.id, _editedProduct);
-      setState(() {
-        _isLoading = false;
-      });
-      Navigator.of(context).pop();
+      try {
+        await Provider.of<Products>(context, listen: false)
+            .updateProduct(_editedProduct.id, _editedProduct);
+      } catch (error) {
+        await showDialog(
+            context: context,
+            builder: (ctx) => AlertDialog(
+                  title: Text("An error occured"),
+                  content: Text("Updated failed."),
+                  actions: <Widget>[
+                    FlatButton(
+                      child: Text("Okay"),
+                      onPressed: () {
+                        Navigator.of(ctx).pop();
+                      },
+                    )
+                  ],
+                ));
+      }
     } else {
       try {
         //add new products
@@ -112,7 +125,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
             context: context,
             builder: (ctx) => AlertDialog(
                   title: Text("An error occured"),
-                  content: Text("Something went wrong."),
+                  content: Text("Add new product failed."),
                   actions: <Widget>[
                     FlatButton(
                       child: Text("Okay"),
@@ -122,13 +135,18 @@ class _EditProductScreenState extends State<EditProductScreen> {
                     )
                   ],
                 ));
-      } finally {
-        setState(() {
-          _isLoading = false;
-        });
-        Navigator.of(context).pop();
       }
+//      } finally {
+//        setState(() {
+//          _isLoading = false;
+//        });
+//        Navigator.of(context).pop();
+//      }
     }
+    setState(() {
+      _isLoading = false;
+    });
+    Navigator.of(context).pop();
   }
 
   @override
