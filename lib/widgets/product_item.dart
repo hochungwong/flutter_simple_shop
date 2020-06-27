@@ -12,6 +12,9 @@ class ProductItem extends StatelessWidget {
     final product = Provider.of<Product>(context, listen: false);
     final cart = Provider.of<Cart>(context,
         listen: false); //only want to dispatch action, not to re-render
+
+    final scaffold = Scaffold.of(context);
+
     return ClipRRect(
       borderRadius: BorderRadius.circular(10),
       child: GridTile(
@@ -33,8 +36,14 @@ class ProductItem extends StatelessWidget {
               color: Theme.of(context).accentColor,
               icon: Icon(
                   product.isFavorite ? Icons.favorite : Icons.favorite_border),
-              onPressed: () {
-                product.toggleFavoriteStatus();
+              onPressed: () async {
+                try {
+                  await product.toggleFavoriteStatus();
+                } catch (error) {
+                  scaffold.showSnackBar(SnackBar(
+                    content: Text("Add to / Remove off Favorite failed"),
+                  ));
+                }
               },
             ),
             title: Text(
