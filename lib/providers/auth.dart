@@ -51,7 +51,7 @@ class Auth with ChangeNotifier {
   }
 
   bool get isAuth {
-    return token != null;
+    return _token != null;
   }
 
   String get token {
@@ -61,5 +61,9 @@ class Auth with ChangeNotifier {
       return _token;
     }
     return null;
+  }
+
+  String get userId {
+    return _userId;
   }
 }

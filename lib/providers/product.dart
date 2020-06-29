@@ -26,15 +26,15 @@ class Product with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> toggleFavoriteStatus() async {
+  Future<void> toggleFavoriteStatus(String token, String userId) async {
     //optimistically handle fav status, similar to delete single product
     //store old data, revert it if app sends http request failed
     final oldFavStatus = isFavorite;
     isFavorite = !isFavorite;
     notifyListeners();
-    final url = "https://simple-shop-d6592.firebaseio.com/products/$id.json";
-    final response =
-        await http.patch(url, body: json.encode({"isFavorite": isFavorite}));
+    final url =
+        "https://simple-shop-d6592.firebaseio.com/userFavorites/$userId/$id.json?auth=$token";
+    final response = await http.put(url, body: json.encode(isFavorite));
     if (response.statusCode >= 400) {
       //revert
       _setFavValue(oldFavStatus);

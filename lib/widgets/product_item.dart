@@ -3,6 +3,7 @@ import "package:provider/provider.dart";
 
 import "../providers/product.dart";
 import "../providers/cart.dart";
+import "../providers/auth.dart";
 
 import "../screens/product_detail_screen.dart";
 
@@ -12,6 +13,7 @@ class ProductItem extends StatelessWidget {
     final product = Provider.of<Product>(context, listen: false);
     final cart = Provider.of<Cart>(context,
         listen: false); //only want to dispatch action, not to re-render
+    final authData = Provider.of<Auth>(context, listen: false);
 
     final scaffold = Scaffold.of(context);
 
@@ -38,7 +40,8 @@ class ProductItem extends StatelessWidget {
                   product.isFavorite ? Icons.favorite : Icons.favorite_border),
               onPressed: () async {
                 try {
-                  await product.toggleFavoriteStatus();
+                  await product.toggleFavoriteStatus(
+                      authData.token, authData.userId);
                 } catch (error) {
                   scaffold.showSnackBar(SnackBar(
                     content: Text("Add to / Remove off Favorite failed"),
