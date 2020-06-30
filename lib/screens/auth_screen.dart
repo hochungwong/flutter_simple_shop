@@ -102,7 +102,8 @@ class AuthCard extends StatefulWidget {
   _AuthCardState createState() => _AuthCardState();
 }
 
-class _AuthCardState extends State<AuthCard> {
+class _AuthCardState extends State<AuthCard>
+    with SingleTickerProviderStateMixin {
   final GlobalKey<FormState> _formKey = GlobalKey();
   AuthMode _authMode = AuthMode.Login;
   Map<String, String> _authData = {
@@ -111,6 +112,31 @@ class _AuthCardState extends State<AuthCard> {
   };
   var _isLoading = false;
   final _passwordController = TextEditingController();
+  AnimationController _animationController;
+  Animation<Size> _heightAnimation;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    //animation controller
+    _animationController =
+        AnimationController(vsync: this, duration: Duration(milliseconds: 300));
+    //height
+    _heightAnimation = Tween<Size>(
+            begin: Size(double.infinity, 260), end: Size(double.infinity, 320))
+        .animate(CurvedAnimation(
+            parent: _animationController, curve: Curves.linear));
+    _heightAnimation.addListener(
+        () => setState(() {})); //only use setState to re-render the screen
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    _animationController.dispose();
+  }
 
   void _showErrorDialog(String message) {
     showDialog(
@@ -180,10 +206,12 @@ class _AuthCardState extends State<AuthCard> {
       setState(() {
         _authMode = AuthMode.Signup;
       });
+      _animationController.forward(); //start animation, expand the container
     } else {
       setState(() {
         _authMode = AuthMode.Login;
       });
+      _animationController.reverse(); //shrink the container
     }
   }
 
@@ -196,7 +224,8 @@ class _AuthCardState extends State<AuthCard> {
       ),
       elevation: 8.0,
       child: Container(
-        height: _authMode == AuthMode.Signup ? 320 : 260,
+//        height: _authMode == AuthMode.Signup ? 320 : 260,
+        height: _heightAnimation.value.height,
         constraints:
             BoxConstraints(minHeight: _authMode == AuthMode.Signup ? 320 : 260),
         width: deviceSize.width * 0.75,
