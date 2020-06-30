@@ -31,16 +31,17 @@ class Auth with ChangeNotifier {
             "returnSecureToken": true
           }));
       final responseData = json.decode(response.body);
+      print(responseData["expiresIn"]);
       if (responseData["error"] != null) {
         throw HttpException(responseData["error"]["message"]);
       }
       _token = responseData["idToken"];
       _userId = responseData["localId"];
-      _expiryDate = DateTime.now()
-          .add(Duration(seconds: int.parse(responseData["expiresIn"])));
+      _expiryDate = DateTime.now().add(
+          Duration(seconds: int.parse(responseData["expiresIn"]))); // 3600s
       _autoLogout();
       notifyListeners();
-      //store login status
+      //store login status by shared_preferences
       final prefs = await SharedPreferences.getInstance();
       final userData = json.encode({
         "token": _token,
@@ -61,6 +62,8 @@ class Auth with ChangeNotifier {
     return _authenticate(email, password, "signInWithPassword");
   }
 
+  ///try to auto login by checking the userData, if userData exists, check the expiryDate.
+  ///otherwise it allows user (staying) login.
   Future<bool> tryAutoLogin() async {
     final prefs = await SharedPreferences.getInstance();
     if (!prefs.containsKey("userData")) {
@@ -91,14 +94,16 @@ class Auth with ChangeNotifier {
     }
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
-    prefs.remove("userData");
+    prefs.remove("userData"); //or prefs.clear() clear all the prefs
   }
 
   void _autoLogout() {
     if (_authTimer != null) {
       _authTimer.cancel();
     }
-    final timeToExpiry = _expiryDate.difference(DateTime.now()).inSeconds;
+    final timeToExpiry = _expiryDate
+        .difference(DateTime.now())
+        .inSeconds; // compare expiry date from firebase with current local time, and convert to diff to seconds
     _authTimer = Timer(Duration(seconds: timeToExpiry), logout);
   }
 
